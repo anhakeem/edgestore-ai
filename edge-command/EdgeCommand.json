@@ -1,0 +1,51 @@
+{
+  "project": "EdgeStore.ai",
+  "version": "1.0",
+  "tasks": [
+    {
+      "id": "F001",
+      "title": "Landing Page UI",
+      "assigned_to": "Claude",
+      "type": "frontend",
+      "priority": "high",
+      "description": "Create a Tailwind-based responsive landing page. Include logo, slogan ('Sync Fast. Store Smart. Dominate the Edge.'), CTA button, and animated feature highlights.",
+      "output": "apps/web/pages/index.tsx"
+    },
+    {
+      "id": "B002",
+      "title": "Stripe Checkout + Webhooks",
+      "assigned_to": "Gemini",
+      "type": "backend",
+      "priority": "critical",
+      "description": "Implement Stripe checkout session creation and webhook handling for `subscription.created`, `updated`, and `subscription.deleted`. Use Express.js routes with Prisma for DB interaction.",
+      "output": "apps/api/routes/checkout.ts"
+    },
+    {
+      "id": "B003",
+      "title": "Mock AI Prediction Engine",
+      "assigned_to": "Claude",
+      "type": "backend",
+      "priority": "medium",
+      "description": "Set up a fake AI engine that returns JSON-based predictions for testing. Example: 'Upload pattern detected: eCommerce B2B client – suggest Tier 2 Plan'.",
+      "output": "apps/api/routes/predict.ts"
+    },
+    {
+      "id": "D004",
+      "title": "Docker + Docker Compose",
+      "assigned_to": "Grok",
+      "type": "devops",
+      "priority": "medium",
+      "description": "Create Dockerfile for backend with Node.js, SQLite, Prisma, and docker-compose to launch backend with one command.",
+      "output": "apps/api/Dockerfile"
+    },
+    {
+      "id": "I005",
+      "title": "CI/CD Hook for Deploy",
+      "assigned_to": "Grok",
+      "type": "integration",
+      "priority": "low",
+      "description": "Setup GitHub Actions to deploy frontend to Vercel and backend to Fly.io or Render on every main branch push.",
+      "output": ".github/workflows/deploy.yml"
+    }
+  ]
+}
