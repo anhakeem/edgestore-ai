@@ -6,43 +6,57 @@ on:
 
 jobs:
   deploy-frontend:
-    name: Deploy Frontend (Vercel)
+    name: 🚀 Deploy Frontend (Vercel)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: apps/web
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+    steps:
+      - name: ⬇️ Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🧰 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install Dependencies
-        run: npm install
+      - name: 📦 Install Dependencies (Web)
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
-      - name: Deploy to Vercel
+      - name: 🚀 Deploy to Vercel
         run: npx vercel --prod --token=$VERCEL_TOKEN
 
   deploy-backend:
-    name: Deploy Backend (Fly.io)
+    name: 🛠 Deploy Backend (Fly.io)
     runs-on: ubuntu-latest
     defaults:
       run:
         working-directory: apps/api
-    steps:
-      - uses: actions/checkout@v4
 
-      - name: Setup Node.js
+    steps:
+      - name: ⬇️ Checkout Code
+        uses: actions/checkout@v4
+
+      - name: 🧰 Setup Node.js
         uses: actions/setup-node@v4
         with:
           node-version: '20'
 
-      - name: Install Dependencies
-        run: npm install
+      - name: 📦 Install Dependencies (API)
+        run: |
+          if [ -f package-lock.json ]; then
+            npm ci
+          else
+            npm install
+          fi
 
-      - name: Deploy to Fly.io
+      - name: 🚀 Deploy to Fly.io
         run: flyctl deploy --remote-only --app edgestore-api --config fly.toml
         env:
           FLY_API_TOKEN: ${{ secrets.FLY_API_TOKEN }}
