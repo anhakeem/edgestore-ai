@@ -1,0 +1,20 @@
+# Dependencies
+node_modules/
+pnpm-lock.yaml
+package-lock.json
+
+# Build outputs
+.next/
+dist/
+out/
+coverage/
+
+# Env & logs
+.env
+*.env.*
+*.log
+*.sqlite
+*.db
+
+# OS metadata
+.DS_Store
