@@ -1,15 +1,19 @@
-// apps/api/index.ts
-import express from 'express';
-import predictRouter from './routes/predict';
-import checkoutRouter from './routes/checkout';
+import express, { Request, Response } from 'express';
 
 const app = express();
+
+// Middleware to parse JSON requests
 app.use(express.json());
 
-app.use('/predict', predictRouter);
-app.use('/checkout', checkoutRouter);
+// Sample predict endpoint
+app.post('/predict', (req: Request, res: Response) => {
+  const input = req.body.input || 'No input received';
+  res.json({ result: `Predicted output for: ${input}` });
+});
 
-const port = process.env.PORT || 8080;
+// ✅ Ensure the PORT is treated as a number
+const port = parseInt(process.env.PORT || '8080', 10);
+
 app.listen(port, '0.0.0.0', () => {
-  console.log(`🔥 Server running on http://0.0.0.0:${port}`);
+  console.log(`🔥 API listening on port ${port}`);
 });
