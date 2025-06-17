@@ -1,15 +1,28 @@
-import express, { Request, Response } from 'express';
+// edgestore-ai/apps/api/index.ts
+import express from 'express';
+import cors from 'cors';
+import predictRoute from './routes/predict';
+import trackRoute from './routes/track';
+import timelineRoute from './routes/timeline';
+import eventsRoute from './routes/events';
 
 const app = express();
+
+app.use(cors());
 app.use(express.json());
 
-app.post('/predict', (req: Request, res: Response) => {
-  const input = req.body.input || 'No input received';
-  res.json({ result: `Predicted output for: ${input}` });
+app.get('/', (_req, res) => {
+  res.send('✅ EdgeStore API is alive');
 });
 
-const port = parseInt(process.env.PORT || '8080', 10);
-app.listen(port, '0.0.0.0', () => {
-  console.log(`🔥 API listening on port ${port}`);
-});
+app.use('/predict', predictRoute);
+app.use('/track', express.json(), trackRoute);
+app.use('/timeline', express.json(), timelineRoute);
+app.use('/events', express.json(), eventsRoute);
 
+
+// 🚀 Start server after all routes are mounted
+const port = process.env.PORT || 8080;
+app.listen(port, () => {
+  console.log(`🔥 Listening on port ${port}`);
+});

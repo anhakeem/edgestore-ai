@@ -1,13 +1,21 @@
-FROM node:18
+# Use lightweight Node image
+FROM node:18-alpine
 
-WORKDIR /usr/src/app
+# Create app directory
+WORKDIR /app
 
-COPY package*.json ./
+# Install dependencies
+COPY package.json package-lock.json ./
 RUN npm install
 
+# Copy all source code
 COPY . .
+
+# Build the TypeScript files into /dist
 RUN npm run build
 
+# Expose port
 EXPOSE 8080
 
-CMD ["npm", "start"]
+# Run the compiled app
+CMD ["node", "dist/index.js"]
