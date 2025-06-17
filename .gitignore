@@ -21,3 +21,10 @@ coverage/
 node_modules
 node_modules
 node_modules/
+node_modules/
+.env
+dist/
+*.log
+.next/
+.vercel/
+
