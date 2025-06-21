@@ -1,28 +1,38 @@
-// edgestore-ai/apps/api/index.ts
+// apps/api/index.ts
+
+import dotenv from 'dotenv';
+import path from 'path';
+dotenv.config({ path: path.resolve(__dirname, '.env') });
+
 import express from 'express';
 import cors from 'cors';
-import predictRoute from './routes/predict';
-import trackRoute from './routes/track';
-import timelineRoute from './routes/timeline';
-import eventsRoute from './routes/events';
+import predictHandler from './routes/predict';
+import eventsHandler from './routes/events';
+import timelineHandler from './routes/timeline';
+import trackHandler from './routes/track';
+import checkoutRouter from './routes/checkout';
+import personaHandler from './routes/persona';
+import adminHandler from './routes/admin';
+
+
+
 
 const app = express();
+const port = parseInt(process.env.PORT || '8080', 10);
 
 app.use(cors());
 app.use(express.json());
 
-app.get('/', (_req, res) => {
-  res.send('✅ EdgeStore API is alive');
-});
+app.use('/predict', predictHandler);
+app.use('/events', eventsHandler);
+app.use('/timeline', timelineHandler);
+app.use('/track', trackHandler);
+app.use('/checkout', checkoutRouter);
+app.use('/persona', personaHandler);
+app.use('/admin', adminHandler);
+app.use('/checkout', checkoutRouter);
 
-app.use('/predict', predictRoute);
-app.use('/track', express.json(), trackRoute);
-app.use('/timeline', express.json(), timelineRoute);
-app.use('/events', express.json(), eventsRoute);
-
-
-// 🚀 Start server after all routes are mounted
-const port = process.env.PORT || 8080;
-app.listen(port, () => {
-  console.log(`🔥 Listening on port ${port}`);
+console.log('🔐 STRIPE_SECRET_KEY Loaded:', !!process.env.STRIPE_SECRET_KEY);
+app.listen(port, '0.0.0.0', () => {
+  console.log(`🔥 EdgeStore API listening on 0.0.0.0:${port}`);
 });

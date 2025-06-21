@@ -1,21 +1,22 @@
-# Use lightweight Node image
-FROM node:18-alpine
+# apps/api/Dockerfile
 
-# Create app directory
+# Stage 1: Build
+FROM node:20-alpine as builder
 WORKDIR /app
 
-# Install dependencies
-COPY package.json package-lock.json ./
+COPY package*.json ./
 RUN npm install
 
-# Copy all source code
 COPY . .
-
-# Build the TypeScript files into /dist
 RUN npm run build
 
-# Expose port
-EXPOSE 8080
+# Stage 2: Run
+FROM node:20-alpine
+WORKDIR /app
 
-# Run the compiled app
+COPY --from=builder /app/dist ./dist
+COPY package*.json ./
+RUN npm install --omit=dev
+
+EXPOSE 3000
 CMD ["node", "dist/index.js"]

@@ -1,44 +1,39 @@
 // apps/api/routes/predict.ts
 
-import { Router, Request, Response } from 'express';
-import fs from 'fs';
-import path from 'path';
-import { sessionEvents } from './sessionStore';
+import { Request, Response, Router } from 'express';
+import getTimeline from '../libs/helpers/getTimeline';
 
 const router = Router();
-const DATA_FILE = path.resolve(__dirname, '../../session-timeline.json');
 
-router.post('/', (req: Request, res: Response): void => {
-  const { input, sessionId } = req.body;
+router.post('/', async (req: Request, res: Response): Promise<void> => {
+  const { sessionId, input } = req.body;
 
-  if (!input || typeof input !== 'string') {
-    res.status(400).json({ error: 'Missing or invalid input' });
+  if (!sessionId || !input) {
+    res.status(400).json({ error: 'Missing sessionId or input' });
     return;
   }
 
-  const result = `Echo: ${input}`;
-
-  // 🧠 Optional: track into session-timeline.json
-  const event = {
-    sessionId: sessionId || 'unknown',
-    event: 'prediction_request',
-    input,
-    output: result,
-    timestamp: new Date().toISOString()
-  };
-
   try {
-    let existing = [];
-    if (fs.existsSync(DATA_FILE)) {
-      existing = JSON.parse(fs.readFileSync(DATA_FILE, 'utf8'));
-    }
-    existing.push(event);
-    fs.writeFileSync(DATA_FILE, JSON.stringify(existing, null, 2));
-  } catch (err) {
-    console.error('❌ Failed to track prediction event:', err);
-  }
+    const timeline = await getTimeline(sessionId);
 
-  res.json({ result });
+    const mockSummary = `
+🧠 Timeline Insight:
+- Total Events: ${timeline.length}
+- Last Input: "${input}"
+
+📊 Prediction Summary:
+- Intent: Exploring
+- Churn Risk: Medium
+- Likely Interest: AI Tooling
+
+✅ Next Step: Recommend a demo or free trial CTA.
+    `;
+
+    res.json({ result: mockSummary });
+  } catch (err) {
+    console.error('Predict API error:', err);
+    res.status(500).json({ error: 'Prediction failed.' });
+  }
 });
 
 export default router;

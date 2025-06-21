@@ -3,6 +3,8 @@ import { Router, Request, Response } from 'express';
 import fs from 'fs';
 import path from 'path';
 import { sessionEvents } from './sessionStore';
+import getTimeline from './timeline';
+
 
 const router = Router();
 const DATA_FILE = path.resolve(__dirname, '../../session-timeline.json');

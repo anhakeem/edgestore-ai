@@ -1,27 +1,36 @@
+// edgestore-ai/apps/api/routes/checkout.ts
+
 import express, { Request, Response, raw, RequestHandler } from 'express';
 import Stripe from 'stripe';
 
 const router = express.Router();
 
-// 🧠 Lazy Stripe instantiation to prevent early crash
+// 🧠 Lazy Stripe Instantiation
 let stripe: Stripe | null = null;
 const getStripe = (): Stripe => {
   if (!stripe) {
     const key = process.env.STRIPE_SECRET_KEY;
     if (!key) {
-      throw new Error('❌ STRIPE_SECRET_KEY is not set in environment');
+      console.error('❌ STRIPE_SECRET_KEY is not defined in .env');
+      throw new Error('Missing STRIPE_SECRET_KEY');
     }
     stripe = new Stripe(key, { apiVersion: '2025-05-28.basil' });
   }
   return stripe;
 };
 
-// ✅ TYPE-SAFE Checkout session route
+// STRIPE SECRET KEY Loaded
+console.log('🔐 STRIPE_SECRET_KEY Loaded:', !!process.env.STRIPE_SECRET_KEY);
+
+// ✅ CREATE CHECKOUT SESSION
 const createCheckoutSessionHandler: RequestHandler = async (req: Request, res: Response) => {
   const { priceId, userEmail, userId } = req.body;
 
+  console.log('🧾 Received checkout request:', { priceId, userEmail, userId });
+
   if (!priceId || !userEmail || !userId) {
-    res.status(400).json({ error: 'Missing required fields' });
+    console.warn('⚠️ Missing required checkout fields');
+    res.status(400).json({ error: 'Missing required fields: priceId, userEmail, or userId' });
     return;
   }
 
@@ -37,16 +46,18 @@ const createCheckoutSessionHandler: RequestHandler = async (req: Request, res: R
       customer_email: userEmail,
     });
 
+    console.log('✅ Stripe session created:', session.id);
     res.json({ url: session.url });
-  } catch (error) {
-    console.error('❌ Stripe error:', error);
-    res.status(500).json({ error: 'Stripe session creation failed' });
+  } catch (error: any) {
+    console.error('❌ Stripe error:', error?.message);
+    console.error('🪵 Full Error:', error);
+    res.status(500).json({ error: error?.message || 'Stripe session creation failed' });
   }
 };
 
 router.post('/create-checkout-session', createCheckoutSessionHandler);
 
-// ✅ TYPE-SAFE Webhook route
+// ✅ WEBHOOK HANDLER
 const stripeWebhookHandler: RequestHandler = async (req: Request, res: Response): Promise<void> => {
   const sig = req.headers['stripe-signature'];
   const stripe = getStripe();
@@ -59,7 +70,7 @@ const stripeWebhookHandler: RequestHandler = async (req: Request, res: Response)
       process.env.STRIPE_WEBHOOK_SECRET as string
     );
   } catch (err: any) {
-    console.error(`❌ Webhook Error: ${err.message}`);
+    console.error(`❌ Webhook signature error: ${err.message}`);
     res.status(400).send(`Webhook Error: ${err.message}`);
     return;
   }
@@ -67,7 +78,7 @@ const stripeWebhookHandler: RequestHandler = async (req: Request, res: Response)
   const subscription = event.data.object as Stripe.Subscription;
   const userId = subscription.metadata?.userId || (subscription as any).client_reference_id;
 
-  console.log(`🔥 Stripe event: ${event.type} for user: ${userId}`);
+  console.log(`🔥 Stripe event received: ${event.type} for user: ${userId}`);
   res.json({ received: true });
 };
 
