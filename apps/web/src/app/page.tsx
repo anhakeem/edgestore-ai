@@ -1,14 +1,18 @@
 // edgestore-ai/apps/web/src/app/page.tsx
-'use client';
+
 'use client';
 import React, { useEffect, useState } from 'react';
 import axios from 'axios';
 import { v4 as uuidv4 } from 'uuid';
+import EdgeAgentSummary from '../components/EdgeAgentSummary';
+import EdgeAgentInsight from '../components/EdgeAgentInsight';
 
 const HomePage: React.FC = () => {
   const [sessionId, setSessionId] = useState('');
   const [input, setInput] = useState('');
   const [persona, setPersona] = useState<any>(null);
+  const [agent, setAgent] = useState<any>(null);
+  const [aiInsights, setAiInsights] = useState<string | null>(null);
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
@@ -23,6 +27,9 @@ const HomePage: React.FC = () => {
   const handlePredict = async () => {
     if (!input.trim()) return;
     setLoading(true);
+    setAiInsights(null);
+    setAgent(null);
+    setPersona(null);
     try {
       await axios.post('https://edgestore-api.fly.dev/track', {
         sessionId,
@@ -38,13 +45,19 @@ const HomePage: React.FC = () => {
         timestamp: new Date().toISOString(),
       });
 
-      setTimeout(async () => {
-        const res = await axios.get(`https://edgestore-api.fly.dev/persona/${sessionId}`);
-        setPersona(res.data);
-        setLoading(false);
-      }, 1200);
+      const [personaRes, agentRes, aiRes] = await Promise.all([
+        axios.get(`https://edgestore-api.fly.dev/persona/${sessionId}`),
+        axios.get(`https://edgestore-api.fly.dev/predict?sessionId=${sessionId}`),
+        axios.get(`https://edgestore-api.fly.dev/agent/${sessionId}/ai`),
+      ]);
+
+      setPersona(personaRes.data);
+      setAgent(agentRes.data);
+      setAiInsights(aiRes.data.insights);
     } catch (err) {
-      console.error('Error predicting:', err);
+      console.error('❌ AI insight fetch failed:', err);
+      setAiInsights('❌ AI insight failed. Please try again.');
+    } finally {
       setLoading(false);
     }
   };
@@ -84,7 +97,7 @@ const HomePage: React.FC = () => {
 
       {/* PERSONA RESULT */}
       {persona && (
-        <section className="bg-slate-800 p-6 rounded-xl max-w-xl mx-auto text-left mb-20">
+        <section className="bg-slate-800 p-6 rounded-xl max-w-xl mx-auto text-left mb-10">
           <h3 className="text-2xl font-bold text-green-400 mb-2">🧬 EdgeAgent Generated</h3>
           <p><strong>🆔</strong> {persona.sessionId}</p>
           <p><strong>🧠 Intent:</strong> {persona.intent}</p>
@@ -92,6 +105,31 @@ const HomePage: React.FC = () => {
           <p><strong>🎯 Interests:</strong> {persona.interest.join(', ') || 'None'}</p>
           <p><strong>📊 Events:</strong> {persona.totalEvents}</p>
           <p><strong>🕒 Last Seen:</strong> {new Date(persona.lastSeen).toLocaleString()}</p>
+        </section>
+      )}
+
+      {/* EDGE AGENT SUMMARY */}
+      {agent && (
+        <section className="mt-8 max-w-xl mx-auto">
+          <EdgeAgentSummary agent={agent} />
+        </section>
+      )}
+
+      {/* AI LOADING & ERROR HANDLING */}
+      {loading && (
+        <p className="text-center text-sm text-cyan-400 mt-4">
+          🧠 Generating AI Insight...
+        </p>
+      )}
+
+      {aiInsights && typeof aiInsights === 'string' && aiInsights.startsWith('❌') && (
+        <p className="text-center text-sm text-red-500 mt-4">{aiInsights}</p>
+      )}
+
+      {/* AI INSIGHT FROM GPT */}
+      {aiInsights && typeof aiInsights === 'string' && !aiInsights.startsWith('❌') && (
+        <section className="mt-8 max-w-xl mx-auto">
+          <EdgeAgentInsight insight={aiInsights} />
         </section>
       )}
 
