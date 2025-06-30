@@ -77,7 +77,16 @@ const handleCheckout = async (priceId: string) => {
   rounded-2xl p-6 border-2 transition-all duration-300 shadow-glow
   ${plan.highlight ? 'border-cyan-500 bg-slate-800 hover:shadow-xl' : 'border-slate-700 bg-slate-900 hover:shadow-md'}
 `}>
-  <h2 className="text-2xl font-bold mb-2 text-white">{plan.name}</h2>
+  {plan.name === 'Enterprise' && (
+  <div className="flex justify-center mb-3">
+    <img
+      src="/logo-gold.svg"
+      alt="EdgeStore Gold Logo"
+      className="w-12 h-12"
+    />
+  </div>
+)}
+<h2 className="text-2xl font-bold mb-2 text-white">{plan.name}</h2>
   <p className="text-3xl font-extrabold text-brand-cyan mb-4">{plan.price}/mo</p>
   <p className="text-gray-400 mb-6">{plan.description}</p>
   <ul className="space-y-2 mb-6">
