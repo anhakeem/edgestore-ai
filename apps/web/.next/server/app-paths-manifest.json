@@ -1,5 +1,14 @@
 {
+  "/_not-found/page": "app/_not-found/page.js",
+  "/agent/[sessionId]/page": "app/agent/[sessionId]/page.js",
+  "/agents/page": "app/agents/page.js",
+  "/admin/alerts/page": "app/admin/alerts/page.js",
+  "/cancel/page": "app/cancel/page.js",
+  "/admin/page": "app/admin/page.js",
+  "/archive/page": "app/archive/page.js",
   "/pricing/page": "app/pricing/page.js",
   "/success/page": "app/success/page.js",
-  "/cancel/page": "app/cancel/page.js"
+  "/book/page": "app/book/page.js",
+  "/demo/page": "app/demo/page.js",
+  "/page": "app/page.js"
 }

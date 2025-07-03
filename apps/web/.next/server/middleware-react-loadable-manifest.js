@@ -1,1 +1,1 @@
-self.__REACT_LOADABLE_MANIFEST="{}"
+self.__REACT_LOADABLE_MANIFEST='{"app/admin/page.tsx -> @/components/SnapshotPreviewModal":{"id":5287,"files":["static/chunks/287.045ef4bb151021c6.js"]}}';
